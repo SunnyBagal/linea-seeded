@@ -17,11 +17,27 @@ const allowedOrigins = (process.env.CORS_ORIGINS ?? "http://localhost:3000")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use(cors({ origin: allowedOrigins }))
+console.log("[cors] allowed origins:", allowedOrigins);
+
+
+app.use(cors({ origin(origin, callback){
+  if (!origin){
+    return callback(null, true);
+  }
+    callback(null, allowedOrigins.includes(origin));
+  },
+
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  maxAge: 86400,
+
+ })
+);
 
 function generateSlug(): string {
   return randomBytes(6).toString("hex");
 }
+
 
 app.post("/signup", async (req, res) => {
 
@@ -74,6 +90,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+
 app.post("/signin", async (req, res) => {
   const parsed = SigninSchema.safeParse(req.body);
 
@@ -105,6 +122,7 @@ app.post("/signin", async (req, res) => {
   });
 
 });
+
 
 app.post("/room", authMiddleware, async (req, res) => {
   const adminId = req.userId;
@@ -167,6 +185,7 @@ app.get("/rooms", authMiddleware, async (req, res) => {
   }
 });
 
+
 app.get("/chats/:roomId", authMiddleware, async (req, res) => {
 
   const roomId = Number(req.params.roomId);
@@ -196,6 +215,7 @@ app.get("/chats/:roomId", authMiddleware, async (req, res) => {
     });
   }
 });
+
 
 app.get("/operations/:roomId", authMiddleware, async (req, res) => {
   const roomId = Number(req.params.roomId);
@@ -231,7 +251,6 @@ app.get("/operations/:roomId", authMiddleware, async (req, res) => {
 })
 
 
-
 app.get("/room/:slug", authMiddleware, async (req, res) => {
   const slug = req.params.slug;
   if (typeof slug !== "string") {
@@ -261,13 +280,8 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true })
 });
 
-// Railway injects PORT; bind it so the health check passes. Falls back to
-// 3005 for local dev (Number(...) || keeps the type as `number`).
+
 const PORT = Number(process.env.PORT) || 3005;
 app.listen(PORT, () => {
   console.log(`server is running on http://localhost:${PORT}`);
 });
-
-
-
-// pnpm install --frozen-lockfile && pnpm --filter @repo/db exec prisma generate && pnpm --filter http-backend build
