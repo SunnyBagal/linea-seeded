@@ -109,8 +109,8 @@
   border:2.5px solid rgba(11,18,6,.25);border-top-color:var(--ln-ink);animation:ln-spin .7s linear infinite}
 @keyframes ln-spin{to{transform:rotate(360deg)}}
 .ln-btn-primary .ln-tick svg{transform:scale(.4);opacity:0;transition:transform .35s var(--ln-ease),opacity .2s ease}
-.ln-btn-primary[data-state="loading"] .ln-bl{opacity:0}
-.ln-btn-primary[data-state="loading"] .ln-spin{opacity:1}
+.ln-btn-primary[data-state="pending"] .ln-bl{opacity:0}
+.ln-btn-primary[data-state="pending"] .ln-spin{opacity:1}
 .ln-btn-primary[data-state="success"] .ln-bl{opacity:0}
 .ln-btn-primary[data-state="success"] .ln-tick{opacity:1}
 .ln-btn-primary[data-state="success"] .ln-tick svg{transform:scale(1);opacity:1}

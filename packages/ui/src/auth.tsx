@@ -121,7 +121,7 @@ export function PasswordField({
   );
 }
 
-export type SubmitState = "idle" | "loading" | "success";
+export type SubmitState = "idle" | "pending" | "success";
 
 export function PrimaryButton({ state = "idle", children }: { state?: SubmitState; children: ReactNode }) {
   return (
@@ -177,7 +177,7 @@ export function useDemoSubmit() {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (state !== "idle") return;
-    setState("loading");
+    setState("pending");
     setTimeout(() => {
       setState("success");
       setToastOpen(true);
