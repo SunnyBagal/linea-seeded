@@ -138,7 +138,7 @@ DB read and JSON transfer). But it's still linear in *total* room history.
 Production Linea has **no snapshots yet** (the `Snapshot` table exists but is
 unused), so the whole op log is still replayed on every load. Snapshots remain
 the eventual answer for very large rooms: periodically persist the folded state
-(`stateAtSeq` already computes state at a given seq), then hydration becomes
+(`shapesAtSeq` already computes state at a given seq), then hydration becomes
 "load latest snapshot + fold only the **tail** of ops" — **O(tail)** instead of
 O(n). So the progression is honest and staged: O(n²) → **O(n) today (foldOps)**
 → O(tail) later (snapshots). Quote the measured numbers and frame it that way.
