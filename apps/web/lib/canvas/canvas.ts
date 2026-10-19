@@ -4,8 +4,21 @@ import rough from "roughjs";
 import type { RoughCanvas } from "roughjs/bin/canvas";
 import type { Drawable } from "roughjs/bin/core";
 
-export const MIN_SCALE = 0.1;
-export const MAX_SCALE = 8;
+// Zoom limits in percent, the unit the toolbar readout and the zoom presets
+// use. clampZoom() keeps a percentage inside that range.
+export const MIN_SCALE = 10;
+export const MAX_SCALE = 800;
+export const ZOOM_PRESETS = [25, 50, 100, 200, 400] as const;
+
+export function clampZoom(pct: number): number {
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, pct));
+}
+
+export function nextZoomPreset(pct: number, dir: 1 | -1): number {
+  const presets = dir === 1 ? ZOOM_PRESETS : [...ZOOM_PRESETS].reverse();
+  const next = presets.find((p) => (dir === 1 ? p > pct : p < pct));
+  return clampZoom(next ?? pct);
+}
 const GRID_SIZE = 40;
 const FONT_FAMILY = "'Comic Sans MS', 'Segoe Print', cursive";
 
