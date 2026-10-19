@@ -249,7 +249,9 @@ export default function CanvasBoard({ slug }: { slug: string }) {
         ? stateAtSeq(opLogRef.current, travelSeqRef.current)
         : shapesRef.current;
       const sel = travelActiveRef.current ? null : selectedIdRef.current;
-      redraw(ctx, canvas, shapes, cameraRef.current, sel);
+      // Hide the grid while scrubbing history so the read-only view reads
+      // as a snapshot rather than an editable board.
+      redraw(ctx, canvas, shapes, cameraRef.current, sel, { grid: !travelActiveRef.current });
     };
 
     const resize = () => {
