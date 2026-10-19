@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { WS_URL } from "../config";
 
-export function useSocket() {
+type SocketOptions = {
+  // Reconnect with exponential backoff when the connection drops.
+  reconnect?: boolean;
+  // Upper bound for the backoff delay, in ms.
+  maxDelayMs?: number;
+};
+
+export function useSocket({ reconnect = false, maxDelayMs = 5000 }: SocketOptions = {}) {
   const [loading, setLoading] = useState(true);
   const [socket, setSocket] = useState<WebSocket>();
   const retryRef = useRef(0);
@@ -27,10 +34,10 @@ export function useSocket() {
 
       ws.onclose = () => {
         setSocket(undefined);
-        if (closedByUsRef.current) return;
+        if (closedByUsRef.current || !reconnect) return;
 
         setLoading(true);
-        const delay = Math.min(500 * 2 ** retryRef.current, 5000);
+        const delay = Math.min(500 * 2 ** retryRef.current, maxDelayMs);
         retryRef.current += 1;
         timerRef.current = setTimeout(connect, delay);
       };
@@ -48,7 +55,7 @@ export function useSocket() {
         return undefined;
       });
     };
-  }, []);
+  }, [reconnect, maxDelayMs]);
 
   return { socket, loading };
 }
