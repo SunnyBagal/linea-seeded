@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Shape, Tool, Camera, ShapeGeometry, CanvasOp } from "../../../lib/canvas/types";
-import { useSocket } from "../../../hooks/useSocket";
+import { useSocket } from "../../../lib/ws/useSocket";
 import {
   redraw, drawShape, buildShape, getCanvasPos, fetchOperations, simplify,
   screenToWorld, MIN_SCALE, MAX_SCALE, getShapesBounds, applyOp, foldOps,

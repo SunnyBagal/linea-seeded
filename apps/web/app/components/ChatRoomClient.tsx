@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSocket } from "../../hooks/useSocket";
+import { useSocket } from "../../lib/ws/useSocket";
 import { useChats } from "../../hooks/useChats";
 import { useChatStore } from "../../store/useChatStore";
 
