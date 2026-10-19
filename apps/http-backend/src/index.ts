@@ -276,6 +276,31 @@ app.get("/room/:slug", authMiddleware, async (req, res) => {
   });
 });
 
+app.delete("/room/:slug", authMiddleware, async (req, res) => {
+  const adminId = req.userId;
+  if (!adminId) return res.status(401).json({ message: "Unauthorized" });
+
+  const slug = req.params.slug;
+  if (typeof slug !== "string") {
+    return res.status(400).json({ message: "Invalid slug" });
+  }
+
+  try {
+    // Only the room's admin may delete it; operations, snapshots and chats
+    // cascade with the room.
+    prisma.room.delete({
+      where: { slug, adminId },
+    });
+    return res.status(204).end();
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    console.error(error);
+    return res.status(500).json({ message: "Could not delete room." });
+  }
+});
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true })
 });
