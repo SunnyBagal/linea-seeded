@@ -529,7 +529,10 @@ export function stateAtSeq(ops: CanvasOp[], maxSeq: number): Shape[] {
 }
 
 
-export async function fetchOperations(roomId: number): Promise<CanvasOp[]> {
+// Returns null when the op log could not be loaded (expired session, server
+// error), so an unreachable board is not mistaken for an empty one. An empty
+// array means the board genuinely has no history yet.
+export async function fetchOperations(roomId: number): Promise<CanvasOp[] | null> {
   const token = localStorage.getItem("token") ?? "";
   const res = await fetch(`${BACKEND_URL}/operations/${roomId}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -540,7 +543,7 @@ export async function fetchOperations(roomId: number): Promise<CanvasOp[]> {
     if (res.status === 401) {
       localStorage.removeItem("token");
     }
-    return [];
+    return null;
   }
 
   const data = await res.json();
