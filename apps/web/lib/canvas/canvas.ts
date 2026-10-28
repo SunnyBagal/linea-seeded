@@ -350,6 +350,24 @@ function distToSegment(px: number, py: number, ax: number, ay: number, bx: numbe
   return Math.hypot(px - cx, py - cy);
 }
 
+// Visits each consecutive pair of points in a polyline. Stops early and
+// returns true as soon as fn returns true.
+function someSegment(points: Pt[], fn: (a: Pt, b: Pt) => boolean): boolean {
+  for (let i = 0; i < points.length; i++) {
+    if (fn(points[i]!, points[i + 1]!)) return true;
+  }
+  return false;
+}
+
+export function polylineLength(points: Pt[]): number {
+  let total = 0;
+  someSegment(points, (a, b) => {
+    total += Math.hypot(b.x - a.x, b.y - a.y);
+    return false;
+  });
+  return total;
+}
+
 function hitShape(shape: Shape, wx: number, wy: number, tol: number): boolean {
   if (shape.type === "rect") {
     const x1 = Math.min(shape.x, shape.x + shape.width);
@@ -372,11 +390,7 @@ function hitShape(shape: Shape, wx: number, wy: number, tol: number): boolean {
     return distToSegment(wx, wy, shape.x1, shape.y1, shape.x2, shape.y2) <= tol;
   }
   if (shape.type === "pencil") {
-    for (let i = 0; i < shape.points.length - 1; i++) {
-      const a = shape.points[i]!, b = shape.points[i + 1]!;
-      if (distToSegment(wx, wy, a.x, a.y, b.x, b.y) <= tol) return true;
-    }
-    return false;
+    return someSegment(shape.points, (a, b) => distToSegment(wx, wy, a.x, a.y, b.x, b.y) <= tol);
   }
   return false;
 }
