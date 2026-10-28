@@ -59,6 +59,13 @@ function checkUser(token: string): string | null {
   }
 }
 
+// Replies addressed to a single socket (acks, errors) are namespaced under
+// "op:" so they can't be confused with room broadcasts, which keep their
+// bare type ("op", "chat").
+function reply(ws: WebSocket, payload: { type: `op:${string}` } & Record<string, unknown>) {
+  ws.send(JSON.stringify(payload));
+}
+
 function broadcast(roomId: number, payload: unknown, exclude?: WebSocket) {
   const data = JSON.stringify(payload);
   for (const conn of connections.values()) {
@@ -192,19 +199,21 @@ wss.on('connection', (ws, request) => {
           userId: conn.userId,
         }, ws);
 
-        ws.send(JSON.stringify({
-          type: 'op_ack',
+        reply(ws, {
+          type: 'op:ack',
           roomId: msg.roomId,
           shapeId: msg.shapeId,
-          seq: op.seq
-        }));
+          seq: op.seq,
+        });
 
       } catch (err) {
         console.error('op persist failed', err);
-        ws.send(JSON.stringify({ 
-          type: 'error', 
-          message: 'Failed to apply operation.' 
-        }));
+        reply(ws, {
+          type: 'op:error',
+          roomId: msg.roomId,
+          shapeId: msg.shapeId,
+          message: 'Failed to apply operation.',
+        });
       }
       return;
     }
