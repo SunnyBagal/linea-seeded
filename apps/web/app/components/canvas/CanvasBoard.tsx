@@ -307,11 +307,19 @@ export default function CanvasBoard({ slug }: { slug: string }) {
             return;
           }
 
+          // Remote edits take priority over local selection: if another user
+          // changes the shape we have selected, deselect it and abandon any
+          // drag in progress so we keep working from their version.
+          if (selectedIdRef.current === data.payload.id) {
+            selectedIdRef.current = null;
+            if (dragOrigShape?.id === data.payload.id) {
+              dragging = false;
+              dragOrigShape = null;
+            }
+          }
+
           opLogRef.current.push(op);
           shapesRef.current = applyOp(shapesRef.current, op);
-          if (op.opType === "DELETE" && selectedIdRef.current === op.shapeId) {
-            selectedIdRef.current = null;
-          }
 
           if (!travelActiveRef.current) redrawRef.current();
         }
