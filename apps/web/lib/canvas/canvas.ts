@@ -185,12 +185,18 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: ShapeGeometry) {
   }
 }
 
+export type RedrawOptions = {
+  // Draw the background grid. Defaults to true.
+  grid?: boolean;
+};
+
 export function redraw(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
   shapes: Shape[],
   cam: Camera,
-  selectedId?: string | null
+  selectedId?: string | null,
+  { grid = true }: RedrawOptions = {}
 ) {
   const dpr = getDpr();
   const rc = getRough(canvas);
@@ -199,7 +205,7 @@ export function redraw(
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(cam.scale * dpr, 0, 0, cam.scale * dpr, cam.x * dpr, cam.y * dpr);
 
-  drawGrid(ctx, canvas, cam);
+  if (grid) drawGrid(ctx, canvas, cam);
 
   const stroke = activePalette.stroke;
   for (const shape of shapes) drawShapeRough(rc, ctx, shape, stroke);
