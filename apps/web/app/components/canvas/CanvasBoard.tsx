@@ -6,7 +6,7 @@ import { useSocket } from "../../../hooks/useSocket";
 import {
   redraw, drawShape, buildShape, getCanvasPos, fetchOperations, simplify,
   screenToWorld, MIN_SCALE, MAX_SCALE, getShapesBounds, applyOp, foldOps,
-  hitTest, translateShape, stateAtSeq,setTheme, getThemeBg, type Theme,
+  hitTest, translateShape, shapesAtSeq, setTheme, getThemeBg, type Theme,
 } from "../../../lib/canvas/canvas";
 import { useRouter } from "next/navigation";
 import { BACKEND_URL } from "../../../config";
@@ -115,7 +115,7 @@ export default function CanvasBoard({ slug }: { slug: string }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const shapes = travelActiveRef.current
-      ? stateAtSeq(opLogRef.current, travelSeqRef.current)
+      ? shapesAtSeq(opLogRef.current, travelSeqRef.current)
       : shapesRef.current;
     const bounds = getShapesBounds(shapes);
     if (!bounds) { 
@@ -246,7 +246,7 @@ export default function CanvasBoard({ slug }: { slug: string }) {
 
     redrawRef.current = () => {
       const shapes = travelActiveRef.current
-        ? stateAtSeq(opLogRef.current, travelSeqRef.current)
+        ? shapesAtSeq(opLogRef.current, travelSeqRef.current)
         : shapesRef.current;
       const sel = travelActiveRef.current ? null : selectedIdRef.current;
       redraw(ctx, canvas, shapes, cameraRef.current, sel);

@@ -490,7 +490,7 @@ export function applyOp(shapes: Shape[], op: CanvasOp): Shape[] {
 //
 // We fold in ARRAY order and never sort. That is what guarantees
 // foldOps(ops) === ops.reduce(applyOp, []) element-for-element for ANY input,
-// and it keeps stateAtSeq correct for optimistic live ops whose seq is still
+// and it keeps shapesAtSeq correct for optimistic live ops whose seq is still
 // undefined. seq order is only asserted defensively (dev only), never enforced.
 //
 // Per-branch semantics are an exact mirror of applyOp above.
@@ -524,7 +524,7 @@ export function foldOps(ops: CanvasOp[]): Shape[] {
   return Array.from(byId.values());
 }
 
-export function stateAtSeq(ops: CanvasOp[], maxSeq: number): Shape[] {
+export function shapesAtSeq(ops: CanvasOp[], maxSeq: number): Shape[] {
   return foldOps(ops.filter((o) => (o.seq ?? 0) <= maxSeq));
 }
 
