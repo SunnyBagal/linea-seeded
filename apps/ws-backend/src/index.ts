@@ -139,11 +139,14 @@ wss.on('connection', (ws, request) => {
 
     if (msg.type === 'chat') {
 
+      // Outgoing chat frames use their own type so clients can tell a
+      // broadcast from the 'chat' command they send themselves.
       broadcast(msg.roomId, {
-        type: 'chat',
+        type: 'chat_message',
         roomId: msg.roomId,
         message: msg.message,
         userId: conn.userId,
+        sentAt: new Date().toISOString(),
       }, ws);
 
       prismaClient.chat

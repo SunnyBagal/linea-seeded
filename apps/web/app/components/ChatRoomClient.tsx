@@ -25,7 +25,7 @@ export function ChatRoomClient({ id }: { id: number }) {
 
     const handler = (event: MessageEvent) => {
       const parsed = JSON.parse(event.data);
-      if (parsed.type === "chat") {
+      if (parsed.type === "chat_message") {
         addChat({ message: parsed.message });
       }
     };
