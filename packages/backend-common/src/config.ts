@@ -1,4 +1,9 @@
-const secret = process.env.JWT_SECRET;
-if (!secret) throw new Error("JWT_SECRET is not set");
+function required(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is not set`);
+  return value;
+}
 
-export const JWT_SECRET: string = secret;
+// Auth settings are grouped under the AUTH_ prefix so they sort together in
+// the Railway variables panel and can't collide with platform-provided vars.
+export const JWT_SECRET: string = required("AUTH_JWT_SECRET");
