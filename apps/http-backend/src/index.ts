@@ -217,7 +217,10 @@ app.get("/chats/:roomId", authMiddleware, async (req, res) => {
 });
 
 
-app.get("/operations/:roomId", authMiddleware, async (req, res) => {
+// Op log for a room, oldest first. Nested under /rooms/:roomId alongside the
+// other per-room resources, and 404s for an unknown room so callers can tell
+// it apart from a room with no history yet.
+app.get("/rooms/:roomId/operations", authMiddleware, async (req, res) => {
   const roomId = Number(req.params.roomId);
   if (Number.isNaN(roomId)){
     return res.status(400).json({
@@ -226,6 +229,14 @@ app.get("/operations/:roomId", authMiddleware, async (req, res) => {
   }
 
   try{
+    const room = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { id: true },
+    });
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
     const operations = await prisma.operation.findMany({
       where: { roomId },
       orderBy: { seq: "asc" },
