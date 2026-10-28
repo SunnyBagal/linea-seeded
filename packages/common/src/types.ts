@@ -113,14 +113,53 @@ const OpSchema = z.object({
   payload: ShapeSchema.nullable(),
 });
 
-export const WsMessageSchema = z.discriminatedUnion('type', [
+// Frames a client may send to the ws server.
+export const ClientMessageSchema = z.discriminatedUnion('type', [
   JoinRoomSchema,
   LeaveRoomSchema,
   ChatSchema,
   OpSchema,
 ]);
 
-export type WsMessage = z.infer<typeof WsMessageSchema>;
+// Frames the ws server sends back to clients.
+const ChatBroadcastSchema = z.object({
+  type: z.literal('chat'),
+  roomId: z.number().int(),
+  message: z.string(),
+  userId: z.string(),
+});
+
+const OpBroadcastSchema = z.object({
+  type: z.literal('op'),
+  roomId: z.number().int(),
+  seq: z.number().int(),
+  opType: z.enum(['CREATE','UPDATE','DELETE']),
+  shapeId: z.string(),
+  payload: ShapeSchema.nullable(),
+  userId: z.string(),
+});
+
+const OpAckSchema = z.object({
+  type: z.literal('op_ack'),
+  roomId: z.number().int(),
+  shapeId: z.string(),
+  seq: z.number().int(),
+});
+
+const ErrorFrameSchema = z.object({
+  type: z.literal('error'),
+  message: z.string(),
+});
+
+export const ServerMessageSchema = z.discriminatedUnion('type', [
+  ChatBroadcastSchema,
+  OpBroadcastSchema,
+  OpAckSchema,
+  ErrorFrameSchema,
+]);
+
+export type ClientMessage = z.infer<typeof ClientMessageSchema>;
+export type ServerMessage = z.infer<typeof ServerMessageSchema>;
 export type OpMessage = z.infer<typeof OpSchema>;
 export type ShapeGeometry = z.infer<typeof ShapeGeometrySchema>;
 export type Shape = z.infer<typeof ShapeSchema>;
